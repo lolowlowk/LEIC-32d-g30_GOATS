@@ -2,7 +2,12 @@
 #define TABLE_H
 
 #include <stddef.h>
-#include "status.h"
+#include "../status/status.h"
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
 
 #define MAX_COLS 26
 

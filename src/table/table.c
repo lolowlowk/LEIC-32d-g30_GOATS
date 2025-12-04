@@ -1,9 +1,8 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+
 #include "table.h"
-#include "memory.h"
-#include "status.h"
+#include "../util/memory.h"
+#include "../status/status.h"
+
 
 table* table_create(unsigned const short cols) 
 {
@@ -55,7 +54,7 @@ Status table_set_cell(table* t, const size_t row, const char col_letter, const c
 {   
     Status status;
     
-    status = STATUS_OK;
+    status = OK;
     char** cell = table_get_cell_ref(t, row, col_letter, &status);
 
     if (cell == NULL) 
@@ -128,13 +127,13 @@ Status table_remove_last_row(table* t)
     if (t->row_num != 0) 
     {
         safeRealloc((void**)&t->rows, t->row_num * sizeof(row));
-        return STATUS_OK;
+        return OK;
     }
         
     free(t->rows);  // Free manually instead of reallocing to 0 because safeRealloc deals with reallocing to 0 as an error
     t->rows = NULL;
 
-    return STATUS_OK;
+    return OK;
 }
 
 void table_destroy(table** tptr)
@@ -153,3 +152,4 @@ void table_destroy(table** tptr)
     free(t);
     *tptr = NULL;
 }
+
