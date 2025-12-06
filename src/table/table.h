@@ -4,9 +4,7 @@
 #include <stddef.h>
 #include "../status/status.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <stddef.h>
 #include <stdbool.h>
 
 #define MAX_COLS 26
@@ -36,11 +34,5 @@ void table_destroy(table** tptr);
 // Utility
 char** table_get_cell_ref(const table* t, const size_t row, const char col_letter, Status* status);
 int col_letter_to_index(char col);
-
-// CSV functions
-table* table_load_csv(const char* filename);
-void table_save_csv(const table* t, const char* filename);
-
-///////////////////////////////////
 
 #endif

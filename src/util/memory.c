@@ -1,5 +1,5 @@
 #include "memory.h"
-#include "status.h"
+#include "../status/status.h"
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -12,14 +12,14 @@ void handleAllocError(const Status status)
 void safeMalloc(void** ptr, size_t size)
 {
     void* tmp = malloc(size);
-    if (!tmp) handleAllocError(MALLOC_FAIL);
+    if (tmp == NULL) handleAllocError(MALLOC_FAIL);
     *ptr = tmp;
 }
 
 void safeRealloc(void** ptr, size_t size)
 {
     void* tmp = realloc(*ptr, size);
-    if (!tmp) handleAllocError(REALLOC_FAIL);
+    if (tmp == NULL) handleAllocError(REALLOC_FAIL);
     *ptr = tmp;
 }
 

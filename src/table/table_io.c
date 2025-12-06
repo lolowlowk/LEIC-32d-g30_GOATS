@@ -1,5 +1,8 @@
 #include "table.h"
-#include "../io/file_utils.h"
+#include "../file_utils/file_utils.h"
+#include "../util/memory.h"
+
+#define INITIAL_TOKENS_CAP 4
 
 /*
     Programe a função table_load_csv que cria uma tabela (uma instância de struct table) preenchida com
@@ -15,40 +18,74 @@
     faustino, marmelo, 70, 50, 0.99
 */
 
-// Split a line into tokens based on separator
-// Returns a dynamically allocated array of strings and sets *count to the number of tokens
-char** split_line(const char* line, const char separator, size_t* count)
+// Helper function to allocate and store a token
+void add_token(char*** tokens, unsigned short* num_tokens, unsigned short* cap, const char* start, unsigned short len)
 {
-    size_t capacity = 4;
-    size_t num_tokens = 0;
+    char* token;
+    safeMalloc((void**)&token, len + 1);
+    strncpy(token, start, len);
+    token[len] = '\0';
+
+    if (*num_tokens >= *cap)
+        dynamicGrowth((void**)tokens, (size_t*) cap, sizeof(char*));
+
+    (*tokens)[(*num_tokens)++] = token;
+}
+
+char** parse_csv_line(const char* line, unsigned short* count)
+{
+    unsigned short num_tokens, tokens_cap, len;
     char** tokens = NULL;
+    const char* start = NULL;
+    const char* ptr = NULL;
 
-    safeMalloc((void**)&tokens, capacity * sizeof(char*));
+    num_tokens = 0;
+    tokens_cap = INITIAL_TOKENS_CAP;
 
-    const char* start = line;
-    const char* ptr = line;
+    safeMalloc((void**)&tokens, tokens_cap * sizeof(char*));
 
-    while (*ptr) 
+    start = line;
+    ptr = line;
+
+    while (*ptr != '\0') 
     {
-        if (*ptr == separator || *ptr == '\n' || *ptr == '\0') 
+        if (*ptr == '"') 
         {
-            size_t len = ptr - start;
-            char* token = NULL;
-            safeMalloc((void**)&token, len + 1);
-            strncpy(token, start, len);
-            token[len] = '\0';
+            ptr++;  // skip opening quote
+            start = ptr;
 
-            if (num_tokens >= capacity) 
-            {
-                capacity *= 2;
-                safeRealloc((void**)&tokens, capacity * sizeof(char*));
-            }
+            while (*ptr != '"')
+                ptr++; 
 
-            tokens[num_tokens++] = token;
+            len = ptr - start;
+            add_token(&tokens, &num_tokens, &tokens_cap, start, len);
 
-            start = ptr + 1;
+            ptr++;  // skip closing quote
+            if (*ptr == ',')
+                ptr++;  // skip separator
+
+            start = ptr;
+            continue;
         }
+
+        if (*ptr == ',') 
+        {
+            len = ptr - start;
+            add_token(&tokens, &num_tokens, &tokens_cap, start, len);
+
+            ptr++;      // skip separator
+            start = ptr;
+            continue;
+        }
+
         ptr++;
+    }
+
+    // Handle last token if line doesn't end with separator
+    if (ptr != start) 
+    {
+        len = ptr - start;
+        add_token(&tokens, &num_tokens, &tokens_cap, start, len);
     }
 
     *count = num_tokens;
@@ -58,54 +95,52 @@ char** split_line(const char* line, const char separator, size_t* count)
 // Load CSV into table
 table* table_load_csv(const char* filename)
 {
-    FILE* file = fopen(filename, "r");
-    if (!file) 
-        return NULL;
+    FILE* file = NULL;
+    table* t = NULL;
 
+    unsigned short col_count;
+    unsigned short col;
+
+    char** tokens = NULL;
     char* line = NULL;
     bool isOver = false;
 
-    // Read first line to get number of columns
-    readLine(file, &line, &isOver);
-    if (!line) 
-    {
-        fclose(file);
+    file = open_file(filename, "r");
+    if (file == NULL)
         return NULL;
-    }
 
-    size_t col_count;
-    char** headers = split_line(line, ',', &col_count);
+    // --- Read first line to determine column count ---
+    readLine(file, &line, &isOver);
+    tokens = parse_csv_line(line, &col_count);
+
+    // Create table
+    t = table_create(col_count);
+
+    // Add first row (header or data, depending on your design)
+    table_add_row(t);
+    for (col = 0; col < col_count; col++)
+        table_set_cell(t, 0, 'A' + col, tokens[col]);
+
+    // Free first line tokens
+    for (col = 0; col < col_count; col++)
+        free(tokens[col]);
+    free(tokens);
     free(line);
 
-    table* t = table_create((unsigned short)col_count);
-    if (!t) 
-    {
-        for (size_t i = 0; i < col_count; i++) free(headers[i]);
-        free(headers);
-        fclose(file);
-        return NULL;
-    }
-
-    for (size_t i = 0; i < col_count; i++) free(headers[i]);
-    free(headers);
-
-    // Read remaining lines
-    while (!isOver) 
+    // --- Process remaining lines ---
+    while (!isOver)
     {
         readLine(file, &line, &isOver);
-        if (!line) break;
+        if (isOver) { free(line); break; }
+
+        tokens = parse_csv_line(line, &col_count);
 
         table_add_row(t);
+        for (col = 0; col < col_count; col++)
+            table_set_cell(t, t->row_num - 1, 'A' + col, tokens[col]);
 
-        size_t token_count;
-        char** tokens = split_line(line, ',', &token_count);
-
-        for (size_t c = 0; c < col_count && c < token_count; c++)
-            table_set_cell(t, t->row_num - 1, 'A' + (char)c, tokens[c]); // table_set_cell makes a copy
-
-        // Free tokens array
-        for (size_t c = 0; c < token_count; c++)
-            free(tokens[c]);
+        for (col = 0; col < col_count; col++)
+            free(tokens[col]);
         free(tokens);
         free(line);
     }
@@ -114,42 +149,95 @@ table* table_load_csv(const char* filename)
     return t;
 }
 
+char quote_check(char* cell)
+{
+    char* p = NULL;
+
+    bool has_separator = true;
+
+    p = cell;
+    while (*p != '"')
+    {
+        if (*p == '\0')
+        {
+            if (has_separator)
+                return ',';
+
+            return '\0';
+        }
+
+        if (*p == ',') 
+            has_separator = false;
+
+        p++;
+    }
+
+    return '"';
+}
+
+void write_with_escaped_quotes(FILE* f, char* cell)
+{
+    char* p = NULL;
+
+    fprintf(f, "%c", '"');
+    p = cell;
+    while (*p != '\0')
+    {
+        fprintf(f, "%c", *p);
+        
+        if (*p == '"')
+            fprintf(f, "%c", '"');
+
+        p++;
+    }
+    fprintf(f, "%c", '"');
+}
 
 // Save the table to a CSV file
 void table_save_csv(const table* t, const char* filename)
 {
-    if (!t || !filename) return;
+    FILE* file = NULL;
 
-    FILE* file = fopen(filename, "w");
-    if (!file) return;
+    size_t r;
+    unsigned short col;
 
-    // Write header row: A, B, C, ... (optional, or just leave empty)
-    for (unsigned short c = 0; c < t->col_num; c++) 
+    char* cell = NULL;
+    char* p = NULL;
+    char quote_action;
+
+    file = open_file(filename, "w");
+    if (file == NULL) 
+        return;
+
+    if (t == NULL) 
     {
-        fprintf(file, "%c", 'A' + c);
-        if (c < t->col_num - 1) fprintf(file, ",");
+        announceStatus(INVALID_TABLE);
+        return;
     }
-    fprintf(file, "\n");
 
     // Write each row
-    for (size_t r = 0; r < t->row_num; r++) 
+    for (r = 0; r < t->row_num; r++) 
     {
-        for (unsigned short c = 0; c < t->col_num; c++) 
+        for (col = 0; col < t->col_num; col++) 
         {
-            char* cell = t->rows[r].cells[c];
-            if (cell) 
-            {
-                // Escape double quotes
-                for (char* p = cell; *p; p++) 
-                    if (*p == '"') fprintf(file, "\"\"");
-                
-                // Wrap in quotes if needed
-                bool needsQuotes = strchr(cell, ',') || strchr(cell, '"');
-                if (needsQuotes) fprintf(file, "\"%s\"", cell);
-                else fprintf(file, "%s", cell);
+            cell = t->rows[r].cells[col];
+            if (cell != NULL) 
+            {   
+                quote_action = quote_check(cell);
+
+                if (quote_action == ',') 
+                    fprintf(file, "\"%s\"", cell);
+
+                else if (quote_action == '"')
+                    fprintf(file, "%s", cell);
+
+                else
+                    write_with_escaped_quotes(file, cell);
+
             }
 
-            if (c < t->col_num - 1) fprintf(file, ",");
+            if (col < t->col_num - 1) 
+                fprintf(file, ",");
         }
         fprintf(file, "\n");
     }

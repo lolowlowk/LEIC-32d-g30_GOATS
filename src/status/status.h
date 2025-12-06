@@ -6,13 +6,16 @@ typedef struct {
     const char* message;
 } Status;
 
+void announceStatus(Status status);
+
 // Common error codes
-static const Status OK                  = {0, "OK"};
-static const Status MALLOC_FAIL         = {1, "Memory allocation failed"};
-static const Status REALLOC_FAIL        = {2, "Memory reallocation failed"};
-static const Status INVALID_COLUMN      = {3, "Invalid column"};
-static const Status INVALID_TABLE       = {4, "Invalid table pointer"};
-static const Status INVALID_ROW         = {5, "Invalid row"};
-static const Status CANNOT_OPEN_FILE    = {6, "Unable to open file"};
+extern const Status OK;
+extern const Status MALLOC_FAIL;
+extern const Status REALLOC_FAIL;
+extern const Status INVALID_COLUMN;
+extern const Status INVALID_TABLE;
+extern const Status INVALID_ROW;
+extern const Status INVALID_FILE_NAME;
+extern const Status CANNOT_OPEN_FILE;
 
 #endif // ERRORS_H

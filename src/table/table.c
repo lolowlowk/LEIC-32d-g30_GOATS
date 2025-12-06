@@ -1,7 +1,10 @@
-
 #include "table.h"
 #include "../util/memory.h"
 #include "../status/status.h"
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 
 table* table_create(unsigned const short cols) 
