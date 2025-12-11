@@ -7,6 +7,6 @@
 
 void safeMalloc(void** ptr, size_t size);
 void safeRealloc(void** ptr, size_t size);
-void dynamicGrowth(void** ptr, size_t* cap, const size_t elemSize);
+void dynamicGrowth(void** ptr, size_t* cap);
 
 #endif // MEMORY_H

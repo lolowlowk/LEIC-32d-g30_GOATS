@@ -17,5 +17,6 @@ extern const Status INVALID_TABLE;
 extern const Status INVALID_ROW;
 extern const Status INVALID_FILE_NAME;
 extern const Status CANNOT_OPEN_FILE;
+extern const Status ERROR;
 
 #endif // ERRORS_H

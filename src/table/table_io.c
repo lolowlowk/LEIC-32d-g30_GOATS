@@ -1,5 +1,9 @@
 #include "table.h"
+#include "string.h"
+#include "stdlib.h"
+
 #include "../file_utils/file_utils.h"
+#include "../util/string_util.h"
 #include "../util/memory.h"
 
 #define INITIAL_TOKENS_CAP 4
@@ -18,23 +22,9 @@
     faustino, marmelo, 70, 50, 0.99
 */
 
-// Helper function to allocate and store a token
-void add_token(char*** tokens, unsigned short* num_tokens, unsigned short* cap, const char* start, unsigned short len)
+char** parse_csv_line(const char* line, size_t* count)
 {
-    char* token;
-    safeMalloc((void**)&token, len + 1);
-    strncpy(token, start, len);
-    token[len] = '\0';
-
-    if (*num_tokens >= *cap)
-        dynamicGrowth((void**)tokens, (size_t*) cap, sizeof(char*));
-
-    (*tokens)[(*num_tokens)++] = token;
-}
-
-char** parse_csv_line(const char* line, unsigned short* count)
-{
-    unsigned short num_tokens, tokens_cap, len;
+    size_t num_tokens, tokens_cap, len;
     char** tokens = NULL;
     const char* start = NULL;
     const char* ptr = NULL;
@@ -111,7 +101,7 @@ table* table_load_csv(const char* filename)
 
     // --- Read first line to determine column count ---
     readLine(file, &line, &isOver);
-    tokens = parse_csv_line(line, &col_count);
+    tokens = parse_csv_line(line, (size_t*) &col_count);
 
     // Create table
     t = table_create(col_count);
@@ -133,7 +123,7 @@ table* table_load_csv(const char* filename)
         readLine(file, &line, &isOver);
         if (isOver) { free(line); break; }
 
-        tokens = parse_csv_line(line, &col_count);
+        tokens = parse_csv_line(line, (size_t*) &col_count);
 
         table_add_row(t);
         for (col = 0; col < col_count; col++)
@@ -202,7 +192,6 @@ void table_save_csv(const table* t, const char* filename)
     unsigned short col;
 
     char* cell = NULL;
-    char* p = NULL;
     char quote_action;
 
     file = open_file(filename, "w");

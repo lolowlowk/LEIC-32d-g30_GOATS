@@ -40,7 +40,7 @@ void table_add_row(table* t)
 
     safeMalloc((void**) &(t->rows[t->row_num].cells), t->col_num * sizeof(char*)); // Allocate new row's cells to have col_num spots for strings available
 
-    for (int cell = 0; cell < t->col_num; cell++)
+    for (cell = 0; cell < t->col_num; cell++)
         t->rows[t->row_num].cells[cell] = NULL;  
 
     t->row_num++;
@@ -121,7 +121,7 @@ Status table_remove_last_row(table* t)
 
     t->row_num--;
 
-    for (int cell = 0; cell < t->col_num; cell++) // Free each cell
+    for (cell = 0; cell < t->col_num; cell++) // Free each cell
         free(t->rows[t->row_num].cells[cell]);
 
     free(t->rows[t->row_num].cells); // Free row

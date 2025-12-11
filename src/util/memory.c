@@ -23,8 +23,8 @@ void safeRealloc(void** ptr, size_t size)
     *ptr = tmp;
 }
 
-void dynamicGrowth(void** ptr, size_t* cap, const size_t elemSize)
+void dynamicGrowth(void** ptr, size_t* cap)
 {
     *cap *= CAP_PROGRESSION;
-    safeRealloc(ptr, *cap * elemSize);
+    safeRealloc(ptr, *cap * CAP_PROGRESSION);
 }

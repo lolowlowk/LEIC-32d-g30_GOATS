@@ -61,7 +61,7 @@ void readLine(FILE* f, char** destination, bool* isOver)
         }
 
         if (i >= cap)
-            dynamicGrowth((void**) destination, &cap, sizeof(char));
+            dynamicGrowth((void**) destination, &cap);
 
         (*destination)[i++] = currentChar;
     }

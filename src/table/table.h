@@ -1,7 +1,6 @@
 #ifndef TABLE_H
 #define TABLE_H
 
-#include <stddef.h>
 #include "../status/status.h"
 
 #include <stddef.h>

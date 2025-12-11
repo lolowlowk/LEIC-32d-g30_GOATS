@@ -13,7 +13,19 @@
             "externalConsole": false,
             "MIMode": "lldb",
             "preLaunchTask": "build_c"
+        },
+        {
+            "name": "C/C++: gcc-14 build and debug active file",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${fileDirname}/${fileBasenameNoExtension}",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${fileDirname}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "lldb",
+            "preLaunchTask": "C/C++: gcc-14 build active file"
         }
     ]
 }
-
