@@ -12,7 +12,6 @@
 
 typedef struct {
     char** cells;
-    unsigned short col_num; // number of cells in this row (altered)
 } row;
 
 typedef struct {

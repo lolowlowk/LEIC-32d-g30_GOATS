@@ -1,13 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <stdbool.h>
 
 #include "../../table/table.h"
 #include "../../table/table_io.h"
 #include "../../table/table_filter.h"
-#include "../../status/status.h"
-
 
 static bool is_cheaper_than_1(const void *rowPtr, const void *ctx)
 {
@@ -17,16 +14,15 @@ static bool is_cheaper_than_1(const void *rowPtr, const void *ctx)
     if (!r || !r->cells)
         return false;
 
-    if (price_col < 0 || price_col >= r->col_num)
+    if (price_col < 0)
         return false;
 
-    if (!r->cells[price_col])
+    if (r->cells[price_col] == NULL)
         return false;
 
     double price = atof(r->cells[price_col]);
     return price < 1.0;
 }
-
 
 int main(int argc, char *argv[])
 {
@@ -44,6 +40,12 @@ int main(int argc, char *argv[])
     }
 
     int price_col = col_letter_to_index('E');
+    if (price_col < 0 || price_col >= t->col_num)
+    {
+        fprintf(stderr, "Invalid price column\n");
+        table_destroy(&t);
+        return 1;
+    }
 
     table *filtered = table_filter(t, is_cheaper_than_1, &price_col);
     if (!filtered)

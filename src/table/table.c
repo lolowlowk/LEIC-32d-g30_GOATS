@@ -41,9 +41,7 @@ void table_add_row(table* t)
     safeMalloc((void**) &(t->rows[t->row_num].cells), t->col_num * sizeof(char*)); // Allocate new row's cells to have col_num spots for strings available
 
     for (cell = 0; cell < t->col_num; cell++)
-        t->rows[t->row_num].cells[cell] = NULL;  
-
-    t->rows[t->row_num].col_num = t->col_num;  // (altered)
+        t->rows[t->row_num].cells[cell] = NULL;
 
     t->row_num++;
 }
