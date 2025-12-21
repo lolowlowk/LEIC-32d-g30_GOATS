@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    struct table *t = table_load_csv(argv[2]);
+    table *t = table_load_csv(argv[2]);
     if (!t) {
         fprintf(stderr, "Error loading input CSV.\n");
         return 1;
