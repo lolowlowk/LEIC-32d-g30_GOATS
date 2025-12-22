@@ -29,6 +29,8 @@ Status table_set_cell(table* t, size_t row, char col_letter, const char* value);
 char* table_get_cell_contents(const table* t, size_t row, char col_letter, Status* error_code);
 Status table_remove_last_row(table* t);
 void table_destroy(table** tptr);
+void table_delete_row(table* t, size_t row_index);
+void table_insert_row(table* t, size_t row_index);
 
 // Utility
 char** table_get_cell_ref(const table* t, const size_t row, const char col_letter, Status* status);

@@ -31,7 +31,7 @@ all: $(TARGET)
 
 # Link executable
 $(TARGET): $(OBJ) libtable.so
-	$(CC) $(OBJ) -o $@ $(LDFLAGS)
+	$(CC) $(OBJ) -o $@ $(LDFLAGS) -rdynamic
 
 # Compile object files
 %.o: %.c

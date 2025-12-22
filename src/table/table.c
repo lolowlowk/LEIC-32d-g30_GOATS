@@ -156,3 +156,46 @@ void table_destroy(table** tptr)
     *tptr = NULL;
 }
 
+void table_delete_row(table* t, size_t row_index)
+{
+    if (!t || row_index >= t->row_num)
+		return;
+
+    row* r = &t->rows[row_index];
+    for (size_t c = 0; c < t->col_num; c++) {
+        free(r->cells[c]);
+    }
+    free(r->cells);
+
+	// fill gap occupied by removed row
+    for (size_t i = row_index; i < t->row_num - 1; i++) {
+        t->rows[i] = t->rows[i + 1];
+    }
+
+    t->row_num--;
+
+    t->rows = realloc(t->rows, sizeof(row) * t->row_num);
+}
+
+void table_insert_row(table* t, size_t row_index)
+{
+    if (!t || row_index > t->row_num) return;
+
+    // allocate memory for an extra row
+    t->rows = realloc(t->rows, sizeof(row) * (t->row_num + 1));
+
+    // move existing rows to fit the new one
+    for (size_t i = t->row_num; i > row_index; i--) {
+        t->rows[i] = t->rows[i - 1];
+    }
+
+    row* new_row = &t->rows[row_index];
+    new_row->cells = malloc(sizeof(char*) * t->col_num);
+    
+    for (size_t c = 0; c < t->col_num; c++) {
+        new_row->cells[c] = strdup("");
+    }
+
+    t->row_num++;
+}
+

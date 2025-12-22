@@ -125,7 +125,10 @@ table* table_load_csv(const char* filename)
     // Add first row (header or data, depending on your design)
     table_add_row(t);
     for (col = 0; col < col_count; col++)
-        table_set_cell(t, 0, 'A' + col, tokens[col]);
+    {
+		char *clean = trim(tokens[col]);
+        table_set_cell(t, 0, 'A' + col, clean);
+    }
 
     // Free first line tokens
     for (col = 0; col < col_count; col++)
@@ -143,7 +146,10 @@ table* table_load_csv(const char* filename)
 
         table_add_row(t);
         for (col = 0; col < col_count; col++)
-            table_set_cell(t, t->row_num - 1, 'A' + col, tokens[col]);
+        {
+			char *clean = trim(tokens[col]);
+            table_set_cell(t, t->row_num - 1, 'A' + col, clean);
+        }
 
         for (col = 0; col < col_count; col++)
             free(tokens[col]);

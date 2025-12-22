@@ -65,9 +65,17 @@ CommandRegistry* create_command_registry();
 void register_command(CommandRegistry* registry,
                       const char* name,
                       const char* description,
-                      CommandFunc func);
+                      CommandFunc func,
+                      size_t args_amount);
 
 void command_prompt_run(CommandRegistry* registry);
+
+
+// ---------------------------------------------------------
+// Plug-in structure
+// ---------------------------------------------------------
+
+typedef void (*plugin_init_func)(CommandRegistry* registry);
 
 #endif // COMMAND_H
 

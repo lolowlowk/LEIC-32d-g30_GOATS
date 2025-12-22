@@ -12,7 +12,7 @@
 #include "../util/string_util.h"
 #include "../util/user_input.h"
 
-#define DEFAULT_COMMANDS_AMOUNT 6
+#define DEFAULT_COMMANDS_AMOUNT 7
 
 static void cmd_help(Context*, const char**);
 static void cmd_exit(Context*, const char**);
@@ -20,16 +20,17 @@ static void cmd_load(Context*, const char**);
 static void cmd_save(Context*, const char**);
 static void cmd_show(Context*, const char**);
 static void cmd_filter(Context*, const char**);
+static void cmd_command(Context*, const char**);
 
 // All builtin commands
 static const Command builtin_commands[DEFAULT_COMMANDS_AMOUNT] = {
-    { "help",   "List available commands",          cmd_help,       0 },
-    { "exit",   "Exit program",                     cmd_exit,       0 },
-    
-    { "load",   "Load table from file",             cmd_load,       1 },
-    { "save",   "Save table to file",               cmd_save,       1 },
-    { "show",   "Show a region of the table",       cmd_show,       1 },
-    { "filter", "Filter rows based on column data", cmd_filter,     2 }
+    { "help",    "List available commands",          cmd_help,       0 },
+    { "exit",    "Exit program",                     cmd_exit,       0 },
+    { "load",    "Load table from file",             cmd_load,       1 },
+    { "save",    "Save table to file",               cmd_save,       1 },
+    { "show",    "Show a region of the table",       cmd_show,       1 },
+    { "filter",  "Filter rows based on column data", cmd_filter,     2 },
+    { "command", "Load a new command from plugin",   cmd_command,    1 }
 };
 
 //----------------------------------------
@@ -55,7 +56,7 @@ CommandRegistry* create_command_registry()
     return pNew_command_registry;
 }
 
-void register_command(CommandRegistry* reg, const char* name, const char* description, const CommandFunc func)
+void register_command(CommandRegistry* reg, const char* name, const char* description, const CommandFunc func, size_t args_amount)
 {
     // grow the array if necessary
     size_t new_amount;
@@ -70,7 +71,7 @@ void register_command(CommandRegistry* reg, const char* name, const char* descri
 
     reg->commands[reg->command_amount].func = func;
 
-    reg->commands[reg->command_amount].args_amount = 0; // set if needed elsewhere
+    reg->commands[reg->command_amount].args_amount = args_amount; // set if needed elsewhere
 
     reg->command_amount++;
 }
@@ -451,6 +452,39 @@ static void cmd_filter(Context* context, const char** args)
     /* Swap tables */
     table_destroy(&context->table);
 	context->table = new_table;
+}
+
+static void cmd_command(Context* ctx, const char** args)
+{
+    if (!args[0]) {
+        printf("Usage: command <libfile>\n");
+        return;
+    }
+
+    const char* libfile = args[0];
+    void* handle = dlopen(libfile, RTLD_NOW);
+    if (!handle) {
+        printf("Failed to load library: %s\n", dlerror());
+        return;
+    }
+
+    plugin_init_func init = (plugin_init_func)dlsym(handle, "init_plugin");
+
+    if (!init) {
+        printf("Library does not contain init_plugin function.\n");
+        dlclose(handle);
+        return;
+    }
+
+    // Register new plugin commands
+    init(ctx->registry);
+
+    // Guardar handle para poder fechar depois
+    ctx->plugin_handles = realloc(ctx->plugin_handles, sizeof(void*) * (ctx->plugin_count + 1));
+    ctx->plugin_handles[ctx->plugin_count] = handle;
+    ctx->plugin_count++;
+
+    printf("Plugin loaded successfully.\n");
 }
 
 int main() 
