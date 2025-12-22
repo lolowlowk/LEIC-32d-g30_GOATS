@@ -350,11 +350,11 @@ static void cmd_show(Context* context, const char** args)
         return;
     }
 
-    if (col1 > t->col_num || row1 > t->row_num) 
-    {
-        printf("Coordinates out of table bounds.\n");
-        return;
-    }
+    if (col1 >= t->col_num || col2 >= t->col_num || row1 >= t->row_num || row2 >= t->row_num) 
+	{
+		printf("Coordinates out of table bounds.\n");
+		return;
+	}
 
     if (row1 > row2 || col1 > col2) 
     {
