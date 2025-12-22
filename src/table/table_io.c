@@ -101,7 +101,23 @@ table* table_load_csv(const char* filename)
 
     // --- Read first line to determine column count ---
     readLine(file, &line, &isOver);
-    tokens = parse_csv_line(line, (size_t*) &col_count);
+
+	if (line == NULL || line[0] == '\0') {
+		fclose(file);
+		free(line);
+		announceStatus(INVALID_TABLE);   // ou o erro que usares
+		return NULL;
+	}
+
+	tokens = parse_csv_line(line, (size_t*) &col_count);
+
+	if (col_count == 0) {
+		fclose(file);
+		free(line);
+		free(tokens);
+		announceStatus(INVALID_TABLE);
+		return NULL;
+	}
 
     // Create table
     t = table_create(col_count);

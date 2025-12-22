@@ -72,3 +72,13 @@ char* trim(char* str)
 
     return newStr;
 }
+
+void free_split(char **tokens, size_t count)
+{
+    if (!tokens) return;
+
+    for (size_t i = 0; i < count; i++)
+        free(tokens[i]);
+
+    free(tokens);
+}

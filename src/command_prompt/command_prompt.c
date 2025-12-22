@@ -38,13 +38,13 @@ static const Command builtin_commands[DEFAULT_COMMANDS_AMOUNT] = {
 CommandRegistry* create_command_registry()
 {
     size_t i;
-
-    CommandRegistry* pNew_command_registry = NULL;
-
-    safeMalloc((void**) &pNew_command_registry, sizeof(CommandRegistry));
-
-    pNew_command_registry->commands = NULL;
     
+    CommandRegistry* pNew_command_registry = NULL;
+    
+    safeMalloc((void**) &pNew_command_registry, sizeof(CommandRegistry));
+    
+    pNew_command_registry->commands = NULL;
+
     safeMalloc((void**) &(pNew_command_registry->commands), sizeof(Command) * DEFAULT_COMMANDS_AMOUNT);
 
     for (i = 0; i < DEFAULT_COMMANDS_AMOUNT; i++)
@@ -61,11 +61,15 @@ void register_command(CommandRegistry* reg, const char* name, const char* descri
     size_t new_amount;
 
     new_amount = reg->command_amount + 1;
+   
     safeRealloc((void**) &(reg->commands), sizeof(Command) * new_amount);
 
     reg->commands[reg->command_amount].name = name;
+    
     reg->commands[reg->command_amount].description = description;
+
     reg->commands[reg->command_amount].func = func;
+
     reg->commands[reg->command_amount].args_amount = 0; // set if needed elsewhere
 
     reg->command_amount++;
@@ -83,6 +87,7 @@ Command* match_command(CommandRegistry* reg, const char* command_name)
         if (strcmp(reg->commands[i].name, command_name) == 0)
             return &reg->commands[i];
     }
+
     return NULL;
 }
 
@@ -93,19 +98,28 @@ Command* match_command(CommandRegistry* reg, const char* command_name)
 void command_prompt_run(CommandRegistry* reg)
 {
     char* input = NULL;
+
     char* command_name = NULL;
+
     char** tokens = NULL;
+
     char** args = NULL;
+
     size_t token_amount;
+
     Command* command = NULL;
 
     size_t args_count;
 
     // The context persists while the shell is running
     Context ctx;
+
     ctx.registry = reg;
+
     ctx.plugin_handles = NULL;
+
     ctx.plugin_count = 0;
+
     ctx.table = NULL;
 
     while (1)
@@ -115,12 +129,15 @@ void command_prompt_run(CommandRegistry* reg)
         if (input == NULL) {
             // EOF or read error: exit cleanly
             printf("\nEOF detected — exiting.\n");
+            
             // free table and plugins if needed
             if (ctx.table) table_destroy(&ctx.table);
+            
             for (size_t i = 0; i < ctx.plugin_count; ++i) {
                 if (ctx.plugin_handles[i]) dlclose(ctx.plugin_handles[i]);
             }
             free(ctx.plugin_handles);
+            
             return;
         }
 
@@ -129,13 +146,14 @@ void command_prompt_run(CommandRegistry* reg)
             free(input);
             continue;
         }
-
         tokens = split(input, ' ', &token_amount);
+
         free(input);
+
         input = NULL;
 
         if (token_amount == 0) {
-            free(tokens);
+            free_split(tokens, token_amount);
             continue;
         }
 
@@ -146,32 +164,35 @@ void command_prompt_run(CommandRegistry* reg)
         if (command == NULL)
         {
             printf("Command '%s' not found\n", command_name);
-            free(tokens);
+
+            free_split(tokens, token_amount);
             continue;
         }
-
+        
         // Validate argument count
         args_count = (unsigned short)(token_amount - 1);
+        
         if (args_count != (unsigned short)command->args_amount)
         {
             printf("Wrong argument amount for command '%s', expected: %zu\n",
-                   command->name, command->args_amount);
-            free(tokens);
+                   command->name, command->args_amount);      
+            free_split(tokens, token_amount);
             continue;
         }
-
+        
         // Build args array pointer (const char** expected by CommandFunc)
         args = NULL;
+
         if (args_count > 0) {
             // tokens[1] .. tokens[token_amount-1]
             args = &tokens[1];
         }
-
+        
         // Execute command
         command->func(&ctx, (const char**)args);
-
+        
         // free token strings & array
-        free(tokens);
+        free_split(tokens, token_amount);
     }
 }
 
@@ -428,8 +449,8 @@ static void cmd_filter(Context* context, const char** args)
     new_table = table_filter(t, filter_predicate, (void*) &fctx);
 
     /* Swap tables */
-    table_destroy(&t);
-    t = new_table;
+    table_destroy(&context->table);
+	context->table = new_table;
 }
 
 int main() 

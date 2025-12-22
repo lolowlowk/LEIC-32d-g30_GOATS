@@ -15,4 +15,6 @@ char** split(const char* str, char sep, size_t* count);
 // Returns a pointer to the trimmed string (which may be shifted inside the buffer).
 char* trim(char* str);
 
+void free_split(char **tokens, size_t count);
+
 #endif // STRING_UTIL_H
