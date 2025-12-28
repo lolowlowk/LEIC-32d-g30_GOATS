@@ -86,4 +86,6 @@ void get_input(const char prompt[], char **input)
     safeMalloc((void**) input, len + 1); // +1 for '\0'
 
     strcpy(*input, trimmed);
+    
+    free(trimmed);
 }

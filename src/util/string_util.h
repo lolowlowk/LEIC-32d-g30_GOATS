@@ -13,6 +13,6 @@ char** split(const char* str, char sep, size_t* count);
 
 // Trims leading and trailing whitespace from a string in-place.
 // Returns a pointer to the trimmed string (which may be shifted inside the buffer).
-char* trim(char* str);
+char* trim(const char* str);
 
 #endif // STRING_UTIL_H

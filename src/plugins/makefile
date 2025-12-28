@@ -2,7 +2,7 @@
 # Compiler and flags
 # --------------------------------------------------
 CC = gcc
-CFLAGS = -Wall -Wextra -std=c11 -O2 -fPIC -I../table -I../util -I../status -I../file_utils -I../command_prompt
+CFLAGS = -Wall -Wextra -std=c11 -O2 -fPIC -I../table -I../util -I../status -I../command_prompt
 LDFLAGS = -shared
 
 # --------------------------------------------------

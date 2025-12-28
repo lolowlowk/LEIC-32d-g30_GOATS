@@ -3,14 +3,14 @@
 # --------------------------------------------------
 CC = gcc
 CFLAGS = -Wall -Wextra -std=c11 -g \
-         -I./table -I./util -I./status -I./file_utils -I./command_prompt
+         -I./table -I./util -I./status -I./command_prompt
 LDFLAGS = -L. -ltable -ldl
 
 # --------------------------------------------------
 # Directories
 # --------------------------------------------------
 TARGET_DIR = command_prompt
-TARGET = $(TARGET_DIR)/table_shell
+TARGET = $(TARGET_DIR)/command_program
 
 # --------------------------------------------------
 # Sources

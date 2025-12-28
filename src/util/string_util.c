@@ -48,27 +48,20 @@ char** split(const char* str, char sep, size_t* count)
     return tokens;
 }
 
-char* trim(char* str)
+char* trim(const char* str)
 {
-    int i, j;
-    char* newStr = NULL;
-    
-    i = 0;
-    j = strlen(str) - 1;
+    const char *start = str;
+    while (isspace(*start)) start++;
 
-    while (isspace(str[i])) i++;
+    const char *end = start + strlen(start);
+    while (end > start && isspace(end[-1])) end--;
 
-    if (str[i] == '\0') 
-    {
-        str[0] = '\0';
-        return str;
-    }
+    size_t len = end - start;
 
-    newStr = str + i;
+    char *out = NULL;
+    safeMalloc((void **)& out, len + 1);
+    memcpy(out, start, len);
+    out[len] = '\0';
 
-    while (isspace(str[j])) j--;
-
-    str[j+1] = '\0';
-
-    return newStr;
+    return out;
 }

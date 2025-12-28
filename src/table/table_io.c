@@ -128,10 +128,11 @@ table* table_load_csv(const char* filename)
     {
 		char *clean = trim(tokens[col]);
         table_set_cell(t, 0, 'A' + col, clean);
+        free(clean);
     }
 
     // Free first line tokens
-    free_array(tokens, col_count);
+    free_array((void **)tokens, col_count);
     free(line);
 
     // --- Process remaining lines ---
@@ -147,9 +148,10 @@ table* table_load_csv(const char* filename)
         {
 			char *clean = trim(tokens[col]);
             table_set_cell(t, t->row_num - 1, 'A' + col, clean);
+            free(clean);
         }
 
-        free_array(tokens, col_count);
+        free_array((void **)tokens, col_count);
         free(line);
     }
 
