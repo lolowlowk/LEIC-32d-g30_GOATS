@@ -2,8 +2,8 @@
 #define STATUS_H
 
 typedef struct {
-    int code;
     const char* message;
+    int code;
 } Status;
 
 void announceStatus(Status status);

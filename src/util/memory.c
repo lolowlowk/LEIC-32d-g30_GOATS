@@ -11,27 +11,27 @@ void handleAllocError(const Status status)
     exit(status.code);
 }
 
-void safeMalloc(void** ptr, size_t size)
+void safeMalloc(void** ptr, const size_t size)
 {
     void* tmp = malloc(size);
     if (tmp == NULL) handleAllocError(MALLOC_FAIL);
     *ptr = tmp;
 }
 
-void safeRealloc(void** ptr, size_t size)
+void safeRealloc(void** ptr, const size_t size)
 {
     void* tmp = realloc(*ptr, size);
     if (tmp == NULL) handleAllocError(REALLOC_FAIL);
     *ptr = tmp;
 }
 
-void dynamicGrowth(void** ptr, size_t* cap)
+void dynamicGrowth(void** ptr, size_t* cap, const size_t elem_size)
 {
     *cap *= CAP_PROGRESSION;
-    safeRealloc(ptr, (*cap) * sizeof(void*));
+	safeRealloc(ptr, *cap * elem_size);
 }
 
-void free_array(void **array, size_t count)
+void free_array(void **array, const size_t count)
 {
     size_t i;
 

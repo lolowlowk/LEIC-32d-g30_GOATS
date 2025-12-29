@@ -4,9 +4,6 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-// === Configurations ===
-#define INITIAL_LINE_CAP 80
-
 // Open a file for reading
 FILE* open_file(const char *fileName, const char* action);
 

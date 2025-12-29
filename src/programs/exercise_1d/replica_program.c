@@ -5,7 +5,7 @@
 #include "../../table/table_io.h"
 #include "../../util/memory.h"
 #include "../../status/status.h"
-#include "../../file_utils/file_utils.h"
+#include "../../util/file_utils.h"
 #include "../../util/string_util.h"
 #include "../../util/memory.h"
 

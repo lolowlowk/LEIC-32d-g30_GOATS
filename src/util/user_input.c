@@ -29,7 +29,7 @@ Status processNaturalNum(const char* str, size_t* num)
     cap = INITIAL_STR_CAP;
     errno = 0;
 
-    safeMalloc((void**) &strProcessing, cap);
+    safeMalloc((void**) &strProcessing, cap * sizeof(char));
 
     while (*str != '\0') 
     {
@@ -37,7 +37,7 @@ Status processNaturalNum(const char* str, size_t* num)
         {
             strProcessing[i++] = *(str++);
             if (i + 1 == cap)
-                dynamicGrowth((void**)&strProcessing, &cap);
+                dynamicGrowth((void**)&strProcessing, &cap, sizeof(char));
                 
             continue;
         }
@@ -86,4 +86,6 @@ void get_input(const char prompt[], char **input)
     safeMalloc((void**) input, len + 1); // +1 for '\0'
 
     strcpy(*input, trimmed);
+    
+    free(trimmed);
 }

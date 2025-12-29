@@ -123,7 +123,7 @@ void table_destroy(table** tptr)
 
     // remove all rows safely
     while (t->row_num > 0) 
-        free_array((void**)&t->rows[--(t->row_num)].cells, t->col_num);
+        free_array((void**)t->rows[--(t->row_num)].cells, t->col_num);
     free(t->rows);
 
     free(t);
@@ -133,18 +133,25 @@ void table_destroy(table** tptr)
 void table_delete_row(table* t, size_t row_index)
 {
     if (!t || row_index >= t->row_num)
-		return;
+        return;
 
-    row* r = &t->rows[row_index];
-    free_array((void**)&r->cells, t->col_num);
+    // Free the row's cells
+    free_array((void**)t->rows[row_index].cells, t->col_num);
 
-	// Shift back array because of the removed array
-    for (size_t i = row_index; i < t->row_num - 1; i++)
+    // Shift rows left
+    for (size_t i = row_index; i + 1 < t->row_num; i++)
         t->rows[i] = t->rows[i + 1];
 
     t->row_num--;
 
-    safeRealloc((void**)&t->rows, sizeof(row) * t->row_num);
+    // Shrink rows array
+    if (t->row_num > 0)
+        safeRealloc((void**)&t->rows, sizeof(row) * t->row_num);
+    else 
+    {
+        free(t->rows);
+        t->rows = NULL;
+    }
 }
 
 void table_insert_row(table* t, size_t row_index)
@@ -157,7 +164,6 @@ void table_insert_row(table* t, size_t row_index)
     // move existing rows to fit the new one
     for (size_t i = t->row_num; i > row_index; i--)
         t->rows[i] = t->rows[i - 1];
-    
 
     row* new_row = &t->rows[row_index];
     safeMalloc((void**)&new_row->cells, sizeof(char*) * t->col_num);

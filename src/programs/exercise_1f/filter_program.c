@@ -6,6 +6,7 @@
 #include "../../table/table_io.h"
 #include "../../table/table_filter.h"
 
+// Simple test function
 static bool is_cheaper_than_1(const void *rowPtr, const void *ctx)
 {
     const row *r = rowPtr;

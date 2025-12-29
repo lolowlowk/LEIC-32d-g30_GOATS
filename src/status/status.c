@@ -1,17 +1,15 @@
 #include "status.h"
 #include <stdio.h>
 
-const Status OK                  = { 0, "OK" };
-const Status MALLOC_FAIL         = { 1, "Memory allocation failed" };
-const Status REALLOC_FAIL        = { 2, "Memory reallocation failed" };
-const Status INVALID_COLUMN      = { 3, "Invalid column" };
-const Status INVALID_TABLE       = { 4, "Invalid table pointer" };
-const Status INVALID_ROW         = { 5, "Invalid row" };
-const Status INVALID_FILE_NAME   = { 6, "Invalid file name" };
-const Status CANNOT_OPEN_FILE    = { 7, "Unable to open file" };
-const Status NUMBER_OVERFLOW     = { 8, "Number is outside valid range" };
-const Status INVALID_NUMBER      = { 9, "Number is outside valid range" };
-const Status ERROR               = { 10, "General error" };
+const Status OK                  = { "OK", 0 };
+const Status MALLOC_FAIL         = { "Memory allocation failed", 1 };
+const Status REALLOC_FAIL        = { "Memory reallocation failed", 2 };
+const Status INVALID_COLUMN      = { "Invalid column", 3 };
+const Status INVALID_TABLE       = { "Invalid table pointer", 4 };
+const Status INVALID_ROW         = { "Invalid row", 5 };
+const Status INVALID_FILE_NAME   = { "Invalid file name", 6 };
+const Status CANNOT_OPEN_FILE    = { "Unable to open file", 7 };
+const Status ERROR               = { "General error", 8 };
 
 void announceStatus(Status status) 
 {

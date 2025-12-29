@@ -3,16 +3,16 @@
 
 #include <stddef.h>  // for size_t
 
-void add_token(char*** tokens, size_t* num_tokens, size_t* cap, const char* start, size_t len);
+void add_token(char*** tokens, size_t* num_tokens, size_t* cap, const char* start, const size_t len);
 
 // Splits a string by a given separator character.
 // Returns a NULL-terminated array of strings.
 // The number of tokens is written to *count.
 // Caller must free each token and the token array itself.
-char** split(const char* str, char sep, size_t* count);
+char** split(const char* str, const char sep, size_t* count);
 
 // Trims leading and trailing whitespace from a string in-place.
 // Returns a pointer to the trimmed string (which may be shifted inside the buffer).
-char* trim(char* str);
+char* trim(const char* str);
 
 #endif // STRING_UTIL_H

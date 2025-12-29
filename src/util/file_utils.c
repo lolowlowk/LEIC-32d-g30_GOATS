@@ -4,6 +4,8 @@
 
 #include <stdlib.h>
 
+#define INITIAL_LINE_CAP 80
+
 // Open file
 FILE* open_file(const char *fileName, const char* action)
 {
@@ -28,7 +30,7 @@ void readLine(FILE* f, char** destination, bool* isOver)
 
     cap = INITIAL_LINE_CAP;
 
-    safeMalloc((void**) destination, cap);
+    safeMalloc((void**) destination, cap * sizeof(char));
 
     i = 0;
     while (true)
@@ -56,7 +58,7 @@ void readLine(FILE* f, char** destination, bool* isOver)
         }
 
         if (i >= cap)
-            dynamicGrowth((void**) destination, &cap);
+            dynamicGrowth((void**) destination, &cap, sizeof(char));
 
         (*destination)[i++] = currentChar;
     }

@@ -78,6 +78,7 @@ char** parse_csv_line(const char* line, size_t* count)
         add_token(&tokens, &num_tokens, &tokens_cap, start, len);
     }
 
+    safeRealloc((void**)&tokens, num_tokens * sizeof(char*));
     *count = num_tokens;
     return tokens;
 }
@@ -102,22 +103,24 @@ table* table_load_csv(const char* filename)
     // --- Read first line to determine column count ---
     readLine(file, &line, &isOver);
 
-	if (line == NULL || line[0] == '\0') {
-		fclose(file);
-		free(line);
-		announceStatus(INVALID_TABLE);   // ou o erro que usares
-		return NULL;
-	}
+    if (isOver) 
+    {
+        fclose(file);
+        free(line);
+        announceStatus(INVALID_TABLE);
+        return NULL;
+    }
 
-	tokens = parse_csv_line(line, (size_t*) &col_count);
+    tokens = parse_csv_line(line, (size_t*) &col_count);
 
-	if (col_count == 0) {
-		fclose(file);
-		free(line);
-		free(tokens);
-		announceStatus(INVALID_TABLE);
-		return NULL;
-	}
+    if (col_count == 0) 
+    {
+        fclose(file);
+        free(line);
+        free(tokens);
+        announceStatus(INVALID_TABLE);
+        return NULL;
+    }
 
     // Create table
     t = table_create(col_count);
@@ -126,32 +129,39 @@ table* table_load_csv(const char* filename)
     table_add_row(t);
     for (col = 0; col < col_count; col++)
     {
-		char *clean = trim(tokens[col]);
+        char *clean = trim(tokens[col]);
         table_set_cell(t, 0, 'A' + col, clean);
+        free(clean);
     }
 
     // Free first line tokens
-    free_array(tokens, col_count);
+    free_array((void**) tokens, col_count);
     free(line);
 
     // --- Process remaining lines ---
-    while (!isOver)
+    do
     {
         readLine(file, &line, &isOver);
-        if (isOver) { free(line); break; }
 
-        tokens = parse_csv_line(line, (size_t*) &col_count);
-
-        table_add_row(t);
-        for (col = 0; col < col_count; col++)
+        // If readLine allocated a line, we need to process/free it
+        if (line != NULL) 
         {
-			char *clean = trim(tokens[col]);
-            table_set_cell(t, t->row_num - 1, 'A' + col, clean);
+            tokens = parse_csv_line(line, (size_t*) &col_count);
+
+            table_add_row(t);
+            for (col = 0; col < col_count; col++)
+            {
+                char *clean = trim(tokens[col]);
+                table_set_cell(t, t->row_num - 1, 'A' + col, clean);
+                free(clean);
+            }
+
+            free_array((void**)tokens, col_count);
+            free(line);
+            line = NULL;
         }
 
-        free_array(tokens, col_count);
-        free(line);
-    }
+    } while (!isOver);
 
     fclose(file);
     return t;

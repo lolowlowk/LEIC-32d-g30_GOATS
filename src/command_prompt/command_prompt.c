@@ -12,6 +12,8 @@
 #include "../util/string_util.h"
 #include "../util/user_input.h"
 
+#define UNUSED(x) (void)(x)
+
 static void cmd_help(Context*, const char**);
 static void cmd_exit(Context*, const char**);
 static void cmd_load(Context*, const char**);
@@ -31,7 +33,7 @@ static const Command builtin_commands[] = {
     { "command", "Load a new command from plugin",   cmd_command,    1 }
 };
 
-const int DEFAULT_COMMANDS_AMOUNT = sizeof(builtin_commands) / sizeof(Command);
+const size_t DEFAULT_COMMANDS_AMOUNT = sizeof(builtin_commands) / sizeof(Command);
 
 //----------------------------------------
 //  Command Registry
@@ -205,6 +207,8 @@ void command_prompt_run(CommandRegistry* reg)
 
 static void cmd_help(Context* context, const char** args)
 {
+	UNUSED(args);
+	
     CommandRegistry* reg;
 
     size_t i;
@@ -217,6 +221,8 @@ static void cmd_help(Context* context, const char** args)
 
 static void cmd_exit(Context* context, const char** args)
 {
+	UNUSED(args);
+	
     table** t_ref = NULL;
     CommandRegistry* reg = NULL;
 
@@ -227,7 +233,7 @@ static void cmd_exit(Context* context, const char** args)
 
     reg = context->registry;
 
-    free_array((void**)&reg->commands, reg->command_amount);
+    free(reg->commands);
     free(reg);
 
     printf("Closing the program...\n");
@@ -302,7 +308,7 @@ Status get_subtable_coordinates(const char* coordinates, unsigned short* col1, s
 
     if (count != 2)
     {
-        free(split_coordinates);
+        free_array((void**)split_coordinates, count);
         return ERROR;
     }
 
@@ -312,14 +318,16 @@ Status get_subtable_coordinates(const char* coordinates, unsigned short* col1, s
     
     if (status.code != OK.code)
     {
-        free(split_coordinates);
+        free_array((void**)split_coordinates, count);
         return ERROR;
     }
 
     coordinate2 = split_coordinates[1];
 
-    free(split_coordinates);
-    return process_coordinate(coordinate2, row2, col2);
+    status = process_coordinate(coordinate2, row2, col2);
+    
+    free_array((void**)split_coordinates, count);
+    return status;
 }
 
 static void cmd_show(Context* context, const char** args)
@@ -481,7 +489,7 @@ static void cmd_command(Context* ctx, const char** args)
     init(ctx->registry);
 
     // Guardar handle para poder fechar depois
-    safeRealloc((void**)ctx->plugin_handles, sizeof(void*) * (ctx->plugin_count + 1));
+    safeRealloc((void**)&ctx->plugin_handles, sizeof(void*) * (ctx->plugin_count + 1));
     ctx->plugin_handles[ctx->plugin_count] = handle;
     ctx->plugin_count++;
 
