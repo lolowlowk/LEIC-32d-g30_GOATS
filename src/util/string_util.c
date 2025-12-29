@@ -61,7 +61,7 @@ char* trim(const char* str)
     size_t len = end - start;
 
     char *out = NULL;
-    safeMalloc((void **)&out, len + 1);
+    safeMalloc((void **)& out, len + 1);
     memcpy(out, start, len);
     out[len] = '\0';
 

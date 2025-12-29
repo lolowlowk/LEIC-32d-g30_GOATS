@@ -147,8 +147,7 @@ void table_delete_row(table* t, size_t row_index)
     // Shrink rows array
     if (t->row_num > 0)
         safeRealloc((void**)&t->rows, sizeof(row) * t->row_num);
-    else 
-    {
+    else {
         free(t->rows);
         t->rows = NULL;
     }

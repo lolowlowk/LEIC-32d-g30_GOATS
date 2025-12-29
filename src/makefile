@@ -5,7 +5,7 @@ LIB_OBJS = \
 	table/table_filter.o \
 	util/memory.o \
 	util/string_util.o \
-	file_utils/file_utils.o \
+	util/file_utils.o \
 	status/status.o
 
 # Programs
@@ -21,14 +21,14 @@ libtable.so: $(LIB_OBJS)
 
 # ---------- Object files ----------
 %.o: %.c
-	gcc -Wall -Wextra -O2 -fPIC -I./table -I./util -I./status -I./file_utils -c $< -o $@
+	gcc -Wall -Wextra -O2 -fPIC -I./table -I./util -I./status -c $< -o $@
 
 # ---------- Programs ----------
 $(FILTER_PROGRAM): programs/exercise_1f/filter_program.c libtable.so
-	gcc -Wall -Wextra -O2 -I./table -I./util -I./status -I./file_utils $< -L. -ltable -o $@
+	gcc -Wall -Wextra -O2 -I./table -I./util -I./status $< -L. -ltable -o $@
 
 $(REPLICA_PROGRAM): programs/exercise_1d/replica_program.c libtable.so
-	gcc -Wall -Wextra -O2 -I./table -I./util -I./status -I./file_utils $< -L. -ltable -o $@
+	gcc -Wall -Wextra -O2 -I./table -I./util -I./status $< -L. -ltable -o $@
 
 # ---------- Run helpers ----------
 run-filter:

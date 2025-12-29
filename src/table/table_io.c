@@ -135,7 +135,7 @@ table* table_load_csv(const char* filename)
     }
 
     // Free first line tokens
-    free_array((void**) tokens, col_count);
+    free_array((void **)tokens, col_count);
     free(line);
 
     // --- Process remaining lines ---
@@ -146,22 +146,14 @@ table* table_load_csv(const char* filename)
         // If readLine allocated a line, we need to process/free it
         if (line != NULL) 
         {
-            tokens = parse_csv_line(line, (size_t*) &col_count);
-
-            table_add_row(t);
-            for (col = 0; col < col_count; col++)
-            {
-                char *clean = trim(tokens[col]);
-                table_set_cell(t, t->row_num - 1, 'A' + col, clean);
-                free(clean);
-            }
-
-            free_array((void**)tokens, col_count);
-            free(line);
-            line = NULL;
+			char *clean = trim(tokens[col]);
+            table_set_cell(t, t->row_num - 1, 'A' + col, clean);
+            free(clean);
         }
 
-    } while (!isOver);
+        free_array((void **)tokens, col_count);
+        free(line);
+    }
 
     fclose(file);
     return t;
